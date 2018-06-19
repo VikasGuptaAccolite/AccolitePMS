@@ -4,6 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'kra.dart';
+import 'Feedback.dart';
 
 void main() {
   runApp(new MaterialApp(
@@ -38,10 +40,10 @@ class HomePageState extends State<HomePage> {
 
 
     this.setState(() {
-      print('decoding json now...');
+      // print('decoding json now...');
       // data = json().decode(response.body);
       data = json().decode(tmpJSON);
-      print(data.toString());
+      // print(data.toString());
     });
     // print(data[1]["Goal"]);
 
@@ -65,12 +67,86 @@ class HomePageState extends State<HomePage> {
       body: new ListView.builder(
         itemCount: data == null ? 0 : data.length,
         itemBuilder: (BuildContext context, int index) {
-          return new Card(
-            child: new Text("Goal:" + data[index]["Goal"] + '\n'+ "Feedback:" + data[index]["Remarks"]),
-            
-          );
+          // print('Row $index is = ' + data[index].toString() );
+          // return new Card(
+          //   child: new Text("Goal:" + data[index]["Goal"] + '\n'+ "Feedback:" + data[index]["Remarks"]),
+          return new KraWidget(new Kra.fromJson(data[index], index) ) ;
         },
       ),
     );
   }
 }
+
+class KraWidget extends StatelessWidget{
+  final Kra kra;
+  KraWidget(this.kra);
+
+  // BuildContext get context => null;
+
+  @override
+  
+  Widget build(BuildContext context){
+    // print("Inside buildwidget with index = " + kra.id.toString() );
+    return new GestureDetector(
+        onHorizontalDragEnd: (DragEndDetails x) {
+          print("Horizontally dragged!!!, Drag end details were - " + x.toString() );
+
+        },
+        onTap: (){
+          _pushFeedBack(kra, context);
+          print('Gesture detected for Goal with id - ' + kra.id.toString());
+        },
+          child: new Card(
+            
+            child: new Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: new Text("Goal : " + kra.goal + '\n\n' + "Feedback is - " + kra.remarks ),
+            ),
+      ),
+    );
+  }
+
+  _pushFeedBack (Kra kra, BuildContext context ) {
+    print("inside pushfeedback now...");
+  // BuildContext context;
+    Navigator.of( context).push(
+    new MaterialPageRoute(
+      builder: (context) => new FeedBack(kra), 
+    )
+  );
+}
+
+}
+
+// class KRAWidget extends StatelessWidget {
+//   KRAWidget(this.place);
+//   // final places.Place place;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // Normalize rating to (0,1) and interpolate color from red to green
+//     var ratingColor = Color.lerp(Colors.red, Colors.green, place.rating / 5);
+
+//     var listTile = new ListTile(
+//       leading: new CircleAvatar(
+//         child: new Text(place.rating.toString()),
+//         backgroundColor: ratingColor,
+//       ),
+//       title: new Text(place.name),
+//       subtitle: new Text(place.address ?? "unknown ..."),
+//       isThreeLine: false,
+//     );
+
+//     return new Dismissible(
+//       key: new Key(place.name),
+//       onDismissed: (dir) => dir == DismissDirection.startToEnd
+//           ? print('You favorited ${place.name}!')
+//           : print('You dismissed ${place.name} ...'),
+//       background: new Container(
+//         color: Colors.green,
+//       ),
+//       secondaryBackground: new Container(color: Colors.red),
+//       child: listTile,
+//     );
+//   }
+// }
